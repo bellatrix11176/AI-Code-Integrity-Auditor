@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="assets/AI_Code_Auditor.png" width="160" alt="AI Code Integrity Auditor Logo">
+</p>
 # AI Code Integrity Auditor
 
 A local tool to detect integrity issues in AI-generated Python and JSON files.
