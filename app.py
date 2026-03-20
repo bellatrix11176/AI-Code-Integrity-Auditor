@@ -340,7 +340,7 @@ uploaded_files = st.file_uploader(
     label="Drag and drop files here, or click to browse",
     type=["py", "json"],
     accept_multiple_files=True,
-    help="Files are saved to data/uploads/scan_<timestamp>/ and never modified.",
+    help="Files are saved in the uploads folder and never modified.",
     label_visibility="visible",
 )
 
