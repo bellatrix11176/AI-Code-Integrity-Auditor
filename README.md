@@ -1,61 +1,138 @@
 <p align="center">
   <img src="assets/AI_Code_Auditor.png" width="160" alt="AI Code Integrity Auditor Logo">
 </p>
+
 # AI Code Integrity Auditor
 
-A local tool to detect integrity issues in AI-generated Python and JSON files.
+A local static analysis tool that detects integrity failures in AI-generated Python and JSON files.
+
+This is **not a linter**. It does not check syntax or style. It is a governance layer designed to catch the specific failure patterns that AI code generators produce — code that looks correct but is logically unreliable, incomplete, or fabricated.
 
 ---
 
-## Current Status — Phase 1 (Skeleton Only)
+## What it detects
 
-This is the repo skeleton. No scanning logic exists yet.
+### Python files
 
-What is present:
-- Repo-root architecture with relative paths throughout
-- Directory layout enforced on launch (`data/uploads/`, `output/reports/`)
-- Data types for scan findings (`src/scanner.py`)
-- Stub `scan()` function that raises `NotImplementedError`
-- Minimal Streamlit app that launches and confirms the structure
+| Category | What it catches |
+|---|---|
+| `structural_hallucination` | Names used but never defined or imported |
+| `silent_failure_risk` | Bare `except:` blocks and `except … pass` (swallowed exceptions) |
+| `placeholder_logic` | `pass` statements, `NotImplementedError`, TODO/FIXME/HACK comments, placeholder string literals |
+| `terminal_state_failure` | Functions whose names imply a return value but have no `return` statement, or inconsistent return paths |
+| `narrative_state_risk` | `print("success")` or log calls that claim completion without a matching write or state change; docstrings that claim to save/write but the function doesn't |
+| `control_flow_drift` | Unreachable code after `return`, `raise`, `break`, or `continue` |
+| `path_to_nowhere` | References to local file paths that were not part of the uploaded batch |
 
-What is NOT present yet:
-- Python file analysis
-- JSON file analysis
-- Any detection logic
-- Report generation
-- Charts or visualizations
-- File upload UI
+### JSON files
+
+| Category | What it catches |
+|---|---|
+| `json_integrity_issue` | Invalid JSON, placeholder values (`todo`, `temp`, `your-api-key`, etc.), sample credentials or URLs |
+| `schema_drift` | Duplicate keys, mixed camelCase/snake_case naming, high null density (≥ 35% of values are null) |
 
 ---
 
-## Directory Layout
+## Project structure
 
 ```
-ai-code-integrity-auditor/
+AI-Code-Integrity-Auditor/
 ├── app.py                  # Streamlit entry point
 ├── requirements.txt
 ├── README.md
+├── LICENSE
+├── assets/
+│   └── AI_Code_Auditor.png
 ├── src/
-│   └── scanner.py          # Finding types + scan stub
+│   ├── __init__.py
+│   ├── scanner.py          # All detection logic
+│   ├── reporter.py         # JSON + HTML report generation
+│   ├── charts.py           # Matplotlib visualizations
+│   └── paths.py            # Repo-root detection + shared path constants
 ├── data/
-│   └── uploads/            # Uploaded files go here (created on launch)
+│   └── uploads/            # Uploaded files (auto-created, never modified)
 └── output/
-    └── reports/            # Generated reports go here (created on launch)
+    └── reports/            # Generated reports (auto-created)
 ```
+
+All paths are resolved relative to the repo root. No absolute paths are used anywhere. The tool works wherever you clone it.
 
 ---
 
-## Running
+## Setup
 
 ```bash
+# Windows
+py -m venv venv
+venv\Scripts\activate
+py -m pip install -r requirements.txt
+py -m streamlit run app.py
+
+# Mac / Linux
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
+The app opens automatically at `http://localhost:8501`.
+
 ---
 
-## Architecture Note
+## How to use it
 
-All paths are resolved relative to the repo root. No absolute paths are used anywhere.
-The repo root is detected at runtime by walking upward from `app.py` until a known
-marker file is found.
+1. Open the app in your browser
+2. Upload one or more `.py` or `.json` files
+3. The scanner runs automatically on upload
+4. Review findings in the table — filter by severity, category, or file
+5. Review the three charts (by severity, by category, by file)
+6. Download the JSON or HTML report
+
+Uploaded files are saved to `data/uploads/scan_<timestamp>/` and are never modified. Reports are written to `output/reports/`.
+
+---
+
+## Output
+
+Each finding includes:
+
+| Field | Description |
+|---|---|
+| File | Which file the issue was found in |
+| Line | Line number (1-based; 0 means file-level) |
+| Category | One of the nine detection categories |
+| Severity | `high`, `medium`, or `low` |
+| Message | Description of the issue |
+| Title | Short label for the finding type |
+| Evidence | The source line that triggered the finding |
+| Suggestion | Recommended fix |
+
+Reports are exported as structured JSON and a self-contained HTML file.
+
+---
+
+## Dependencies
+
+| Package | Purpose |
+|---|---|
+| `streamlit >= 1.35.0` | Web UI |
+| `matplotlib >= 3.7.0` | Charts |
+
+All other analysis uses Python standard library only (`ast`, `tokenize`, `json`, `re`).
+
+---
+
+## Architecture
+
+- **`src/scanner.py`** — all detection logic. Pure functions, no side effects. Accepts a `Path` via `scan()` or Streamlit file objects via `ScanEngine`.
+- **`src/reporter.py`** — writes JSON and HTML reports to `output/reports/`.
+- **`src/charts.py`** — returns PNG bytes; does not write to disk.
+- **`src/paths.py`** — single source of truth for `REPO_ROOT`, `UPLOADS_DIR`, `REPORTS_DIR`.
+- **`app.py`** — thin UI layer only. All logic lives in `src/`.
+
+---
+
+## License
+
+Copyright (c) 2026 PixelKraze, LLC. Author: Gina Aulabaugh.
+Licensed under the [Apache License 2.0](LICENSE).
