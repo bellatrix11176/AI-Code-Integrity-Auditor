@@ -4,7 +4,7 @@
 
 # AI Code Integrity Auditor
 
-A local static analysis tool that detects integrity failures in AI-generated Python and JSON files.
+A local static analysis tool that detects integrity failures in AI-generated Python and JSON files, specifically targeting patterns produced by ChatGPT and Claude.
 
 This is **not a linter**. It does not check syntax or style. It is a governance layer designed to catch the specific failure patterns that AI code generators produce — code that looks correct but is logically unreliable, incomplete, or fabricated.
 
