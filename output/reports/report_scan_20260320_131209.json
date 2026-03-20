@@ -1,0 +1,13 @@
+{
+  "run_id": "scan_20260320_131209",
+  "generated_at": "2026-03-20T17:12:09.306500Z",
+  "total": 0,
+  "by_severity": {
+    "high": 0,
+    "medium": 0,
+    "low": 0
+  },
+  "by_category": {},
+  "by_file": {},
+  "findings": []
+}

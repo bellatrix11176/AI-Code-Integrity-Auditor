@@ -1,0 +1,224 @@
+{
+  "run_id": "scan_20260320_131228",
+  "generated_at": "2026-03-20T17:12:28.882442Z",
+  "total": 29,
+  "by_severity": {
+    "high": 29,
+    "medium": 0,
+    "low": 0
+  },
+  "by_category": {
+    "structural_hallucination": 29
+  },
+  "by_file": {
+    "aggregation.py": 23,
+    "charts.py": 4,
+    "integrity.py": 1,
+    "signals.py": 1
+  },
+  "findings": [
+    {
+      "file": "aggregation.py",
+      "line": 61,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 62,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 78,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 92,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 94,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 103,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 160,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 161,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 163,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 172,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 178,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 241,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 243,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 253,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 255,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 296,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 297,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 298,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 316,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 319,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 373,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 377,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "aggregation.py",
+      "line": 383,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "charts.py",
+      "line": 96,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "charts.py",
+      "line": 97,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "charts.py",
+      "line": 342,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "charts.py",
+      "line": 344,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 's' is used but never defined or imported in this file."
+    },
+    {
+      "file": "integrity.py",
+      "line": 206,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 'col' is used but never defined or imported in this file."
+    },
+    {
+      "file": "signals.py",
+      "line": 149,
+      "category": "structural_hallucination",
+      "severity": "high",
+      "message": "Name 't' is used but never defined or imported in this file."
+    }
+  ]
+}
