@@ -336,6 +336,13 @@ def _collect_definitions(tree: ast.Module) -> set[str]:
             defined.update(_names_in_target(node.target))
         elif isinstance(node, (ast.Global, ast.Nonlocal)):
             defined.update(node.names)
+        # Lambda parameters — e.g. lambda x: x[1]
+        elif isinstance(node, ast.Lambda):
+            args = node.args
+            for arg in args.args + args.posonlyargs + args.kwonlyargs:
+                defined.add(arg.arg)
+            if args.vararg: defined.add(args.vararg.arg)
+            if args.kwarg:  defined.add(args.kwarg.arg)
     return defined
 
 
@@ -783,6 +790,19 @@ def _check_path_to_nowhere(
     findings: List[Finding] = []
     candidates: list[tuple[int, str]] = []
 
+    # Collect line numbers of docstrings to exclude from path scanning
+    docstring_lines: set[int] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                              ast.ClassDef, ast.Module)):
+            doc_node = (node.body[0] if node.body and
+                        isinstance(node.body[0], ast.Expr) and
+                        isinstance(node.body[0].value, ast.Constant) and
+                        isinstance(node.body[0].value.value, str)
+                        else None)
+            if doc_node:
+                docstring_lines.add(doc_node.lineno)
+
     for node in ast.walk(tree):
         # open("some_file.csv")
         if isinstance(node, ast.Call):
@@ -796,12 +816,20 @@ def _check_path_to_nowhere(
                     candidates.append((node.lineno, lit.value))
 
         # string literals that look like paths (contain / or \)
+        # Skip docstrings — slashes in docstrings are prose, not paths
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
             val = node.value
-            if ("/" in val or "\\" in val) and len(val) > 3:
-                candidates.append((getattr(node, "lineno", 0), val))
+            lineno = getattr(node, "lineno", 0)
+            if (("/" in val or "\\" in val) and len(val) > 3
+                    and lineno not in docstring_lines):
+                candidates.append((lineno, val))
 
     for lineno, path in candidates:
+        # Skip template placeholders — strings containing < or > are
+        # clearly not real file paths (e.g. "scan_<timestamp>/")
+        if "<" in path or ">" in path:
+            continue
+
         clean = Path(path).name
         looks_local = (
             not path.startswith(("http://", "https://"))

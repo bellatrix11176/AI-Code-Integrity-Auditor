@@ -3,6 +3,7 @@ app.py
 AI Code Integrity Auditor — Streamlit UI.
 """
 
+import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -32,7 +33,7 @@ if str(REPO_ROOT) not in sys.path:
 
 import streamlit as st
 
-from src.paths import UPLOADS_DIR, REPORTS_DIR, ensure_dirs
+from src.paths import UPLOADS_DIR, REPORTS_DIR
 from src.scanner import Finding, scan
 from src.reporter import write_json_report, write_html_report
 from src.charts import chart_by_severity, chart_by_category, chart_by_file
@@ -273,10 +274,31 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------------
-# Ensure output dirs
+# Startup cleanup — wipe all previous outputs and start fresh every run
 # ---------------------------------------------------------------------------
 
-ensure_dirs()
+def _clean_on_startup() -> None:
+    """
+    Delete all previous scan outputs on every app launch.
+    Uses individual file deletion to handle OneDrive permission locks
+    that block shutil.rmtree on the folder itself.
+    """
+    for folder in (UPLOADS_DIR, REPORTS_DIR):
+        if folder.exists():
+            for item in folder.rglob("*"):
+                try:
+                    if item.is_file():
+                        item.unlink(missing_ok=True)
+                    elif item.is_dir():
+                        shutil.rmtree(item, ignore_errors=True)
+                except Exception:
+                  continue  # skip locked files, proceed with cleanup
+        folder.mkdir(parents=True, exist_ok=True)
+
+# Only run cleanup once per process, not on every Streamlit rerun
+if "startup_done" not in st.session_state:
+    _clean_on_startup()
+    st.session_state["startup_done"] = True
 
 # ---------------------------------------------------------------------------
 # Logo path
@@ -368,18 +390,24 @@ upload_key = tuple(sorted((f.name, f.size) for f in uploaded_files))
 if st.session_state.get("upload_key") != upload_key:
     timestamp   = datetime.now().strftime("%Y%m%d_%H%M%S")
     run_id      = f"scan_{timestamp}"
-    session_dir = UPLOADS_DIR / run_id
-    session_dir.mkdir(parents=True, exist_ok=True)
 
     all_findings: list[Finding] = []
     scan_errors:  list[str]     = []
 
     with st.spinner("Scanning files for integrity issues…"):
         for uf in uploaded_files:
-            dest = session_dir / uf.name
-            dest.write_bytes(uf.read())
             try:
-                found = scan(dest)
+                raw = uf.read()
+                text = raw.decode("utf-8", errors="replace")
+                suffix = Path(uf.name).suffix.lower()
+                if suffix == ".py":
+                    from src.scanner import _scan_python
+                    found = _scan_python(text, uf.name)
+                elif suffix == ".json":
+                    from src.scanner import _scan_json
+                    found = _scan_json(text, uf.name)
+                else:
+                    found = []
                 all_findings.extend(found)
             except Exception as exc:
                 scan_errors.append(f"{uf.name}: {exc}")
@@ -495,11 +523,11 @@ st.markdown('<div class="section-label">Visualizations</div>', unsafe_allow_html
 
 col_a, col_b, col_c = st.columns(3)
 with col_a:
-    st.image(chart_by_severity(findings), use_column_width=True)
+    st.image(chart_by_severity(findings), use_container_width=True)
 with col_b:
-    st.image(chart_by_category(findings), use_column_width=True)
+    st.image(chart_by_category(findings), use_container_width=True)
 with col_c:
-    st.image(chart_by_file(findings), use_column_width=True)
+    st.image(chart_by_file(findings), use_container_width=True)
 
 # ---------------------------------------------------------------------------
 # Download reports
@@ -527,5 +555,5 @@ st.markdown("<br>", unsafe_allow_html=True)
 st.caption(
     f"Run ID: `{run_id}` · "
     f"Reports → `output/reports/` · "
-    f"Uploads → `data/uploads/{run_id}/`"
+    f"Run saved to output/reports/"
 )
