@@ -33,6 +33,26 @@ This is **not a linter**. It does not check syntax or style. It is a governance 
 
 ---
 
+## Known behavior — self-referential findings
+
+> **Scanning the tool's own source files will produce expected self-referential findings.**
+>
+> `scanner.py` contains the detection patterns it scans for — placeholder string lists, success message examples, TODO/FIXME markers used in comment detection — so it will always flag itself. This is **expected and correct behavior**, not a bug. A scanner that cannot detect its own patterns would not be detecting anyone else's either.
+>
+> All findings produced when scanning `scanner.py` against itself are low or medium severity and are documented as known self-referential results.
+
+---
+
+## Known limitation — Microsoft OneDrive
+
+> ⚠️ **Do not run this tool from a Microsoft OneDrive folder.**
+>
+> OneDrive's background sync process holds file locks that conflict with the app's startup cleanup routine, causing `PermissionError` on launch. Clone or move the project to a local folder outside OneDrive before running.
+>
+> Example: `C:\Projects\AI-Code-Integrity-Auditor`
+
+---
+
 ## Project structure
 
 ```
@@ -50,9 +70,9 @@ AI-Code-Integrity-Auditor/
 │   ├── charts.py           # Matplotlib visualizations
 │   └── paths.py            # Repo-root detection + shared path constants
 ├── data/
-│   └── uploads/            # Uploaded files (auto-created, never modified)
+│   └── uploads/            # Cleared on every launch
 └── output/
-    └── reports/            # Generated reports (auto-created)
+    └── reports/            # Cleared on every launch
 ```
 
 All paths are resolved relative to the repo root. No absolute paths are used anywhere. The tool works wherever you clone it.
@@ -79,6 +99,20 @@ The app opens automatically at `http://localhost:8501`.
 
 ---
 
+## System requirements
+
+- **Python 3.10 or higher**
+- **Windows, Mac, or Linux**
+- **4GB RAM minimum** recommended
+- **Must run from a local folder — not Microsoft OneDrive**
+
+To check your Python version:
+```bash
+py --version
+```
+
+---
+
 ## How to use it
 
 1. Open the app in your browser
@@ -88,7 +122,7 @@ The app opens automatically at `http://localhost:8501`.
 5. Review the three charts (by severity, by category, by file)
 6. Download the JSON or HTML report
 
-Uploaded files are saved to `data/uploads/scan_<timestamp>/` and are never modified. Reports are written to `output/reports/`.
+Uploaded files are scanned in memory and never saved to disk. Reports are written to `output/reports/` and cleared on next launch.
 
 ---
 
@@ -124,11 +158,11 @@ All other analysis uses Python standard library only (`ast`, `tokenize`, `json`,
 
 ## Architecture
 
-- **`src/scanner.py`** — all detection logic. Pure functions, no side effects. Accepts a `Path` via `scan()` or Streamlit file objects via `ScanEngine`.
+- **`src/scanner.py`** — all detection logic. Pure functions, no side effects. Accepts file objects directly — nothing is written to disk during scanning.
 - **`src/reporter.py`** — writes JSON and HTML reports to `output/reports/`.
 - **`src/charts.py`** — returns PNG bytes; does not write to disk.
 - **`src/paths.py`** — single source of truth for `REPO_ROOT`, `UPLOADS_DIR`, `REPORTS_DIR`.
-- **`app.py`** — thin UI layer only. All logic lives in `src/`.
+- **`app.py`** — thin UI layer only. Clears all previous outputs on every launch. All logic lives in `src/`.
 
 ---
 
