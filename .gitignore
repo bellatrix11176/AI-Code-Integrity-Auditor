@@ -1,0 +1,5 @@
+__pycache__/
+backend/data/uploads/*
+!backend/data/uploads/.gitkeep
+backend/output/reports/*
+!backend/output/reports/.gitkeep

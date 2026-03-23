@@ -1,138 +1,103 @@
 <p align="center">
-  <img src="assets/AI_Code_Auditor.png" width="160" alt="AI Code Integrity Auditor Logo">
+  <img src="assets/logo.svg" width="120" alt="AI Code Integrity Auditor Logo">
 </p>
 
-# AI Code Integrity Auditor
+# AI Code Integrity Auditor (ACIA)
 
-A local static analysis tool that detects integrity failures in AI-generated Python and JSON files, specifically targeting patterns produced by ChatGPT and Claude.
+A specialized static analysis tool designed to detect integrity failures and "hallucinations" in AI-generated code (Python and JSON). It focuses on structural correctness, logic completeness, and narrative consistency rather than syntax or style.
 
-This is **not a linter**. It does not check syntax or style. It is a governance layer designed to catch the specific failure patterns that AI code generators produce — code that looks correct but is logically unreliable, incomplete, or fabricated.
-
----
-
-## What it detects
-
-### Python files
-
-| Category | What it catches |
-|---|---|
-| `structural_hallucination` | Names used but never defined or imported |
-| `silent_failure_risk` | Bare `except:` blocks and `except … pass` (swallowed exceptions) |
-| `placeholder_logic` | `pass` statements, `NotImplementedError`, TODO/FIXME/HACK comments, placeholder string literals |
-| `terminal_state_failure` | Functions whose names imply a return value but have no `return` statement, or inconsistent return paths |
-| `narrative_state_risk` | `print("success")` or log calls that claim completion without a matching write or state change; docstrings that claim to save/write but the function doesn't |
-| `control_flow_drift` | Unreachable code after `return`, `raise`, `break`, or `continue` |
-| `path_to_nowhere` | References to local file paths that were not part of the uploaded batch |
-
-### JSON files
-
-| Category | What it catches |
-|---|---|
-| `json_integrity_issue` | Invalid JSON, placeholder values (`todo`, `temp`, `your-api-key`, etc.), sample credentials or URLs |
-| `schema_drift` | Duplicate keys, mixed camelCase/snake_case naming, high null density (≥ 35% of values are null) |
+This is **not a linter**. It is a governance layer designed to catch the specific failure patterns that AI code generators (like ChatGPT and Claude) produce — code that looks correct but is logically unreliable, incomplete, or fabricated.
 
 ---
 
-## Project structure
+## 🛡️ Core Detections
 
-```
-AI-Code-Integrity-Auditor/
-├── app.py                  # Streamlit entry point
-├── requirements.txt
-├── README.md
-├── LICENSE
-├── assets/
-│   └── AI_Code_Auditor.png
-├── src/
-│   ├── __init__.py
-│   ├── scanner.py          # All detection logic
-│   ├── reporter.py         # JSON + HTML report generation
-│   ├── charts.py           # Matplotlib visualizations
-│   └── paths.py            # Repo-root detection + shared path constants
-├── data/
-│   └── uploads/            # Uploaded files (auto-created, never modified)
-└── output/
-    └── reports/            # Generated reports (auto-created)
+### Python Analysis
+*   **Structural Hallucination:** Names used but never defined or imported.
+*   **Silent Failure Risk:** Bare `except:` blocks and `except ... pass` (swallowed exceptions).
+*   **Placeholder Logic:** `pass` statements, `NotImplementedError`, TODO/FIXME/HACK comments, and placeholder string literals.
+*   **Control Flow Drift:** Unreachable code after `return`, `raise`, `break`, or `continue`.
+*   **Narrative State Risk:** Logs or docstrings claiming completion without actual state changes (e.g., claiming to save a file without a matching write operation).
+
+### JSON Analysis
+*   **Integrity Issues:** Invalid JSON, placeholder values (`todo`, `temp`, `your-api-key`), and sample credentials.
+*   **Schema Drift:** Duplicate keys, inconsistent naming conventions (camelCase vs snake_case), and high null density.
+
+---
+
+## 🏗️ Project Structure
+
+The project is organized into a modular monorepo structure:
+
+```text
+acia/
+├── backend/            # Python Backend (FastAPI & Streamlit)
+│   ├── api/            # FastAPI Modern Web Backend
+│   ├── src/            # Core Modular Logic
+│   │   ├── core/       # Models and Constants
+│   │   ├── scanner/    # Specialized Scanning Engines (Python, JSON)
+│   │   ├── reporter.py # JSON + HTML Report Generation
+│   │   └── charts.py   # Matplotlib Visualizations
+│   ├── tests/          # Unit Tests (pytest)
+│   ├── app.py          # Streamlit UI (Legacy/Local)
+│   └── data/           # Uploads and generated reports
+├── frontend/           # Next.js Modern Web UI
+├── assets/             # Global visual assets
+└── paper/              # Research documentation
 ```
 
-All paths are resolved relative to the repo root. No absolute paths are used anywhere. The tool works wherever you clone it.
-
 ---
 
-## Setup
+## 🚀 Getting Started
+
+### 1. Backend Setup
+The backend requires **Python 3.13+**. We recommend using `uv` for dependency management.
 
 ```bash
-# Windows
-py -m venv venv
-venv\Scripts\activate
-py -m pip install -r requirements.txt
-py -m streamlit run app.py
+cd backend
 
-# Mac / Linux
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-streamlit run app.py
+# Install dependencies and setup venv
+uv sync
+
+# Run the FastAPI Server (Modern API)
+uv run uvicorn api.main:app --reload --port 8000
+
+# OR Run the Streamlit UI (Local Dashboard)
+uv run streamlit run app.py
 ```
 
-The app opens automatically at `http://localhost:8501`.
+### 2. Frontend Setup
+The modern web UI is built with Next.js 16 and Tailwind CSS.
+
+```bash
+cd frontend
+
+# Install dependencies
+bun install
+
+# Run in development mode
+bun dev
+```
+The dashboard will be available at `http://localhost:3000`.
 
 ---
 
-## How to use it
-
-1. Open the app in your browser
-2. Upload one or more `.py` or `.json` files
-3. The scanner runs automatically on upload
-4. Review findings in the table — filter by severity, category, or file
-5. Review the three charts (by severity, by category, by file)
-6. Download the JSON or HTML report
-
-Uploaded files are saved to `data/uploads/scan_<timestamp>/` and are never modified. Reports are written to `output/reports/`.
+## 🎨 Design & Aesthetics
+The application features a modern "Cyber-Peach" aesthetic:
+*   **Color Palette:** `#264259` (Deep Blue), `#355c7d` (Muted Indigo), `#f58e65` (Primary Coral), `#f8b195` (Accent Peach), `#fbd4c5` (Text Shell).
+*   **Interface:** Glassmorphism cards, steep border radii for a sharp professional look, and a responsive grid layout.
 
 ---
 
-## Output
-
-Each finding includes:
-
-| Field | Description |
-|---|---|
-| File | Which file the issue was found in |
-| Line | Line number (1-based; 0 means file-level) |
-| Category | One of the nine detection categories |
-| Severity | `high`, `medium`, or `low` |
-| Message | Description of the issue |
-| Title | Short label for the finding type |
-| Evidence | The source line that triggered the finding |
-| Suggestion | Recommended fix |
-
-Reports are exported as structured JSON and a self-contained HTML file.
+## 🧪 Testing
+The backend includes a suite of unit tests for the scanning logic.
+```bash
+cd backend
+uv run pytest tests/
+```
 
 ---
 
-## Dependencies
-
-| Package | Purpose |
-|---|---|
-| `streamlit >= 1.35.0` | Web UI |
-| `matplotlib >= 3.7.0` | Charts |
-
-All other analysis uses Python standard library only (`ast`, `tokenize`, `json`, `re`).
-
----
-
-## Architecture
-
-- **`src/scanner.py`** — all detection logic. Pure functions, no side effects. Accepts a `Path` via `scan()` or Streamlit file objects via `ScanEngine`.
-- **`src/reporter.py`** — writes JSON and HTML reports to `output/reports/`.
-- **`src/charts.py`** — returns PNG bytes; does not write to disk.
-- **`src/paths.py`** — single source of truth for `REPO_ROOT`, `UPLOADS_DIR`, `REPORTS_DIR`.
-- **`app.py`** — thin UI layer only. All logic lives in `src/`.
-
----
-
-## License
-
+## 📄 License
 Copyright (c) 2026 PixelKraze, LLC. Author: Gina Aulabaugh.
 Licensed under the [Apache License 2.0](LICENSE).
