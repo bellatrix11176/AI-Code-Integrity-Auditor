@@ -1,0 +1,74 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@theme {
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-instrument);
+  --color-primary: #f58e65;
+  --color-accent: #f8b195;
+  --color-card-bg: #355c7d;
+  --color-card-border: #4476a1;
+  --color-text-muted: #f8b195;
+}
+
+:root {
+  --background: #264259;
+  --foreground: #fbd4c5;
+  
+  --card-bg: #355c7d;
+  --card-border: #4476a1;
+  
+  --accent-glow: rgba(248, 177, 149, 0.15);
+  --primary: #f58e65;
+  
+  --text-muted: #f8b195;
+  --text-dark: #355c7d;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  background-image: radial-gradient(circle at 50% 0%, #355c7d 0%, #264259 60%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Glassmorphism Classes built on top of DaisyUI */
+.glass-card {
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(53, 92, 125, 0.7) 0%, rgba(38, 66, 89, 0.9) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.5), 
+              0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(245, 142, 101, 0.3);
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.5), 
+              0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+              0 0 20px var(--accent-glow);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif), serif;
+  letter-spacing: -0.02em;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--card-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-dark);
+}
